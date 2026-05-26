@@ -1,0 +1,33 @@
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor temp files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Environment / secrets
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets.json
+
+# Build / cache
+node_modules/
+__pycache__/
+*.pyc
+.cache/
+dist/
+build/
+
+# Operator-internal (never commit)
+SESSION-DIGEST.md
+.session-state/
+.local/
+*.log
