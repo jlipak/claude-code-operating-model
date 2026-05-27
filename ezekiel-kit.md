@@ -855,13 +855,37 @@ Hooks are shell commands that run automatically at specific events in Claude Cod
 ## Essential Hooks
 
 ### 1. Block Accidental Git Push
+
+```bash
+#!/bin/bash
+# .claude/hooks/block-git-push.sh
+# Tool input arrives as JSON on stdin; parse it, don't read $TOOL_INPUT env.
+INPUT=$(cat)
+CMD=$(echo "$INPUT" | python -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print(d.get('tool_input', {}).get('command', ''))
+except Exception:
+    print('')
+" 2>/dev/null)
+
+if echo "$CMD" | grep -qiE "git\s+push"; then
+  echo "BLOCKED: git push requires explicit permission" >&2
+  exit 2
+fi
+exit 0
+```
+
+Registered:
+
 ```json
 {
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "command": "bash -c 'echo \"$TOOL_INPUT\" | grep -qiE \"git\\s+push\" && echo \"BLOCKED: git push requires explicit permission\" && exit 2 || exit 0'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/block-git-push.sh" }]
       }
     ]
   }
@@ -869,13 +893,33 @@ Hooks are shell commands that run automatically at specific events in Claude Cod
 ```
 
 ### 2. Scan for Secrets in Code
+
+```bash
+#!/bin/bash
+# .claude/hooks/block-secrets-in-code.sh
+# Read JSON tool input from stdin; scan the entire payload.
+INPUT=$(cat)
+
+# Skip .env files — they're supposed to contain secrets
+FILE_PATH=$(echo "$INPUT" | grep -oP '"file_path"\s*:\s*"[^"]*"' | head -1 | sed 's/.*: *"//;s/"$//')
+echo "$FILE_PATH" | grep -qE '\.env(\.|$)' && exit 0
+
+if echo "$INPUT" | grep -qiE '(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|BEGIN[[:space:]]+(RSA[[:space:]]+)?PRIVATE[[:space:]]+KEY)'; then
+  echo "BLOCKED: possible secret in code" >&2
+  exit 2
+fi
+exit 0
+```
+
+Registered:
+
 ```json
 {
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Write|Edit",
-        "command": "bash -c 'echo \"$TOOL_INPUT\" | grep -qiE \"(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|PRIVATE.KEY|BEGIN RSA)\" && echo \"BLOCKED: possible secret in code\" && exit 2 || exit 0'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/block-secrets-in-code.sh" }]
       }
     ]
   }
@@ -911,13 +955,29 @@ esac
 ```
 
 ### 4. Warn on Uncommitted Work at Session End
+
+```bash
+#!/bin/bash
+# .claude/hooks/warn-uncommitted.sh
+# SessionEnd has a ~1.5s timeout — keep this fast, no network.
+cd "${CLAUDE_PROJECT_DIR:-$(pwd)}" 2>/dev/null || exit 0
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "WARNING: uncommitted changes exist!" >&2
+fi
+exit 0
+```
+
+Registered:
+
 ```json
 {
   "hooks": {
     "SessionEnd": [
       {
         "matcher": "",
-        "command": "bash -c 'cd \"$PROJECT_DIR\" && git diff --quiet && git diff --cached --quiet || echo \"WARNING: uncommitted changes exist!\"'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/warn-uncommitted.sh" }]
       }
     ]
   }
@@ -925,13 +985,31 @@ esac
 ```
 
 ### 5. Auto-Format on Save
+
+```bash
+#!/bin/bash
+# .claude/hooks/auto-format.sh
+INPUT=$(cat)
+FILE=$(echo "$INPUT" | grep -oP '"file_path"\s*:\s*"[^"]*"' | head -1 | sed 's/.*: *"//;s/"$//')
+
+[ -z "$FILE" ] || [ ! -f "$FILE" ] && exit 0
+
+case "$FILE" in
+  *.py) command -v ruff >/dev/null && ruff format "$FILE" 2>/dev/null ;;
+  *.rs) command -v rustfmt >/dev/null && rustfmt "$FILE" 2>/dev/null ;;
+esac
+exit 0
+```
+
+Registered:
+
 ```json
 {
   "hooks": {
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
-        "command": "bash -c 'FILE=$(echo \"$TOOL_INPUT\" | grep -oP \"file_path\\\":\\s*\\\"\\K[^\\\"]+\"); [[ \"$FILE\" == *.py ]] && ruff format \"$FILE\" 2>/dev/null; [[ \"$FILE\" == *.rs ]] && rustfmt \"$FILE\" 2>/dev/null; exit 0'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/auto-format.sh" }]
       }
     ]
   }
@@ -1380,13 +1458,26 @@ Add to Level 1:
 - [What you love/hate about AI responses]
 ```
 
-3. **One hook** in `.claude/settings.json` — Block git push:
+3. **One hook** — Block git push. Create `.claude/hooks/block-git-push.sh`:
+```bash
+#!/bin/bash
+INPUT=$(cat)
+CMD=$(echo "$INPUT" | python -c "
+import json, sys
+try: print(json.load(sys.stdin).get('tool_input', {}).get('command', ''))
+except Exception: print('')
+" 2>/dev/null)
+echo "$CMD" | grep -qiE "git\s+push" && { echo "BLOCKED" >&2; exit 2; }
+exit 0
+```
+
+Then register in `.claude/settings.json`:
 ```json
 {
   "hooks": {
     "PreToolUse": [{
       "matcher": "Bash",
-      "command": "bash -c 'echo \"$TOOL_INPUT\" | grep -qiE \"git\\s+push\" && echo \"BLOCKED\" && exit 2 || exit 0'"
+      "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/block-git-push.sh" }]
     }]
   }
 }

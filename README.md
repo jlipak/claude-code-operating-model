@@ -130,4 +130,4 @@ Either way: build deliberately.
 
 ---
 
-*Maintained by SHIKA — feedback and patches welcome via issues.*
+*Maintained by SHIKA. The operator's pseudonym was deliberately reclaimed from the predecessor system named in `ezekiel-kit.md` — the system died, the name kept.*

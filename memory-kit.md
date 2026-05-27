@@ -14,7 +14,7 @@ A senior engineer opens a fresh Claude Code session for a project he's been work
 
 Claude says: "I'd be happy to help — could you tell me a bit about the project?"
 
-That moment — repeated thousands of times across millions of users — is what this document fixes.
+That moment — repeated across every Claude Code user the first time they try multi-session work — is what this document fixes.
 
 The default Claude Code session is **stateless**. Every conversation begins from absolute zero. The model is brilliant, but it remembers nothing between sessions. Not your codebase. Not your preferences. Not the bug you fixed yesterday. Not the architecture decision you spent two hours explaining. Not even your name.
 
@@ -108,7 +108,7 @@ Project knowledge in your head      Project knowledge on disk
 You leave → project dies            You leave → handoff is trivial
 ```
 
-The math is brutal: **a well-tuned memory system roughly doubles productive output per session** and makes handoff to another operator (or to future-you, six months later) feasible instead of catastrophic.
+The math is brutal: **a well-tuned memory system removes the per-session re-explanation tax entirely** — minutes per session, hours per week across multiple projects — and makes handoff to another operator (or to future-you, six months later) feasible instead of catastrophic. The exact productivity delta depends on workflow; what's not negotiable is that the re-explanation tax goes to zero.
 
 ---
 
@@ -1264,20 +1264,46 @@ Hooks are shell commands registered in `.claude/settings.json` under the `hooks`
 
 ## Hook 1: Block Secret Patterns in Memory Writes
 
+```bash
+#!/bin/bash
+# .claude/hooks/block-memory-secrets.sh
+# Fires on Write/Edit. Tool input arrives as JSON on stdin.
+# If target is a memory file AND content matches secret patterns,
+# hard-blocks the write.
+
+INPUT=$(cat)
+
+# Extract file_path from JSON stdin
+FILE_PATH=$(echo "$INPUT" | grep -oP '"file_path"\s*:\s*"[^"]*"' | head -1 | sed 's/.*: *"//;s/"$//')
+
+# Skip if target isn't a memory file
+echo "$FILE_PATH" | grep -qE '/memory/.*\.md$' || exit 0
+
+# Scan the full input for secret patterns
+if echo "$INPUT" | grep -qiE '(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|BEGIN[[:space:]]+(RSA[[:space:]]+)?PRIVATE[[:space:]]+KEY)'; then
+  echo "BLOCKED: possible secret in memory write" >&2
+  exit 2
+fi
+
+exit 0
+```
+
+Registered:
+
 ```json
 {
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Write|Edit",
-        "command": "bash -c 'PATH_ARG=$(echo \"$TOOL_INPUT\" | grep -oP \"file_path\\\":\\s*\\\"\\K[^\\\"]+\"); echo \"$PATH_ARG\" | grep -qE \"/memory/.*\\.md$\" || exit 0; echo \"$TOOL_INPUT\" | grep -qiE \"(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|PRIVATE.KEY|BEGIN RSA|-----BEGIN)\" && echo \"BLOCKED: possible secret in memory write\" && exit 2 || exit 0'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/block-memory-secrets.sh" }]
       }
     ]
   }
 }
 ```
 
-This hook fires on every Write or Edit. If the target is a memory file AND the content matches secret patterns, it hard-blocks the write.
+This hook fires on every Write or Edit. Tool input arrives as JSON on stdin (Claude Code hook contract); the script parses `file_path`, skips non-memory writes, and scans the full input for secret patterns.
 
 ## Hook 2: PreCompact State Flush
 
@@ -1383,17 +1409,27 @@ exit 0
 # .claude/hooks/block-memory-push.sh
 # Prevents accidentally pushing memory directory to a public remote.
 
-INPUT="$TOOL_INPUT"
+INPUT=$(cat)
 
-# If the command is a git push
-echo "$INPUT" | grep -qiE "git\s+push" || exit 0
+# Extract command from JSON stdin (Claude Code hook contract)
+CMD=$(echo "$INPUT" | python -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    print(d.get('tool_input', {}).get('command', ''))
+except Exception:
+    print('')
+" 2>/dev/null)
+
+# Only act on git push commands
+echo "$CMD" | grep -qiE "git\s+push" || exit 0
 
 # Check if any pending commit touches the memory directory
-cd "$CLAUDE_PROJECT_DIR" 2>/dev/null || exit 0
+cd "${CLAUDE_PROJECT_DIR:-$(pwd)}" 2>/dev/null || exit 0
 
 git diff --cached --name-only 2>/dev/null | grep -qE "memory/.*\.md$" && {
-  echo "BLOCKED: Push includes memory files. Memory directories should not be pushed."
-  echo "If intentional, set MEMORY_PUSH_OK=1 and retry."
+  echo "BLOCKED: Push includes memory files. Memory directories should not be pushed." >&2
+  echo "If intentional, set MEMORY_PUSH_OK=1 and retry." >&2
   [ -z "$MEMORY_PUSH_OK" ] && exit 2
 }
 
