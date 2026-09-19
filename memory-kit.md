@@ -1,5 +1,8 @@
 # The Memory Kit — How Claude Code Remembers
 
+> Written: May 2026, for Claude Code 2.x of that time (hook events, settings keys and built-in names as they were then).
+> Status: historical reference; superseded in parts by the "What I would change today" section of the README.
+
 > A complete memory system for Claude Code, forged from hundreds of sessions where the AI forgot everything that mattered.
 > Every rule backed by evidence. Every pattern earned by repeating the same explanation for the 50th time.
 > Drop this in your setup and stop teaching a goldfish.
@@ -1218,7 +1221,7 @@ A memory system without measurement is just a hope. These are the metrics worth 
 **Quality metrics (run quarterly):**
 - False-recall incidents per quarter (Claude cited an atom incorrectly)
 - Stale-snapshot incidents (atom was outdated, caused wrong recommendation)
-- Lessons-added-this-quarter (failure modes captured as `lesson_*` atoms)
+- Lessons-added-this-quarter (failure modes captured as `feedback` atoms; the blueprint names them `lesson_*`)
 - Atoms-removed (active pruning is a sign of discipline, not loss)
 
 **Outcome metrics (run yearly):**
@@ -1244,7 +1247,7 @@ Hooks are shell commands registered in `.claude/settings.json` under the `hooks`
     "EventName": [
       {
         "matcher": "ToolName",
-        "command": "bash -c '...'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/<script>.sh" }]
       }
     ]
   }
@@ -1337,7 +1340,7 @@ Registered:
     "PreCompact": [
       {
         "matcher": "",
-        "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/precompact-save.sh"
+        "hooks": [{ "type": "command", "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/precompact-save.sh" }]
       }
     ]
   }

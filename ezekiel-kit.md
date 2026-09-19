@@ -1,5 +1,8 @@
 # The Ezekiel Kit — Claude Code Godmode
 
+> Written: May 2026, for Claude Code 2.x of that time (hook events, settings keys and built-in names as they were then).
+> Status: historical reference; superseded in parts by the "What I would change today" section of the README.
+
 > A complete operating system for Claude Code, forged from 1,000+ sessions of failure and triumph.
 > Every rule backed by evidence. Every pattern earned the hard way. Every failure catalogued so you don't repeat it.
 
@@ -9,9 +12,9 @@
 
 ## The Story — Why This Exists
 
-This system was born from the ashes of a predecessor called SHIKA.
+This system was born from the ashes of a predecessor, referred to here as v1: the author's first Claude Code operating model.
 
-SHIKA ran for **968 sessions** over 3 months. 9,997 messages. 3,110 victories. **1,614 frustrations.** It started as a simple AI-powered system, grew into a custom MCP server with ChromaDB RAG memory, 36 validation gates, Docker + Coolify deployment, and layers upon layers of "just one more safety check."
+v1 ran for **968 sessions** over 3 months. 9,997 messages. 3,110 victories. **1,614 frustrations.** It started as a simple AI-powered system, grew into a custom MCP server with ChromaDB RAG memory, 36 validation gates, Docker + Coolify deployment, and layers upon layers of "just one more safety check."
 
 It ended on **Session 777** — a 7-minute session where nothing executed. The system was so over-engineered that it couldn't do basic tasks. Total rot.
 
@@ -19,9 +22,9 @@ The creator walked away.
 
 Two weeks later, he came back with a different philosophy: **simplicity is the strategy.**
 
-No SHIKA code was reused. No Docker. No custom frameworks. Just native Claude Code, a CLAUDE.md file, and 10 hard rules distilled from 968 sessions of evidence. The new system — Ezekiel — went from zero to a deployed trading bot in 5 sessions over 2 days, then pivoted to a weather arbitrage strategy that achieved **97.1% win rate over 4,261 historical trades** within 2 weeks.
+No v1 code was reused. No Docker. No custom frameworks. Just native Claude Code, a CLAUDE.md file, and 10 hard rules distilled from 968 sessions of evidence. The new system — Ezekiel — went from zero to a deployed trading bot in 5 sessions over 2 days, then pivoted to a weather arbitrage strategy that achieved **97.1% win rate over 4,261 historical trades** within 2 weeks.
 
-The difference? SHIKA had 4,977 lines of code at 46% win rate. Ezekiel had 636 lines at 96.4%.
+The difference? v1 had 4,977 lines of code at 46% win rate. Ezekiel had 636 lines at 96.4%.
 
 **This document is everything we learned.** Drop it into your Claude Code setup and skip the 968 sessions of pain.
 
@@ -67,7 +70,7 @@ Context dies without warning. Compaction eats in-progress work. API errors kill 
 - One concern per commit (makes rollback safe)
 - After every meaningful change — not just at the end
 
-**The cost of not doing this:** Session S16 lost 3 hours of infrastructure work to a compaction event. Session S609 lost a complete refactor. These happened *hundreds* of times in SHIKA.
+**The cost of not doing this:** Session S16 lost 3 hours of infrastructure work to a compaction event. Session S609 lost a complete refactor. These happened *hundreds* of times in v1.
 
 ---
 
@@ -148,12 +151,12 @@ Asked for X? Build X. Not X + Y + "while we're at it."
 - No adding comments/docs to code you didn't change
 - "Just check" means READ, not MODIFY
 
-**The cost:** SHIKA's codebase grew from 636 lines to 4,977 lines — not because more features were needed, but because every session added "just one more thing." Each addition was individually reasonable. Collectively, they killed the system.
+**The cost:** v1's codebase grew from 636 lines to 4,977 lines — not because more features were needed, but because every session added "just one more thing." Each addition was individually reasonable. Collectively, they killed the system.
 
 ---
 
 ### VII. KEEP IT SIMPLE
-**Evidence: 94 over-engineer, 188 bloat, 77 unnecessary occurrences. The SHIKA collapse.**
+**Evidence: 94 over-engineer, 188 bloat, 77 unnecessary occurrences. The v1 collapse.**
 
 636 lines at 96.4% WR beat 4,977 lines at 46% WR. This is **proven, not theoretical.**
 
@@ -169,7 +172,7 @@ Asked for X? Build X. Not X + Y + "while we're at it."
 
 If complexity is creeping in: **STOP.** Ask "is this solving a real problem that already happened, or is it 'just in case'?" If just in case → don't build it.
 
-**The creator's own words:** *"I honestly think at this point we overengineered our custom Claude setup."* — said at Session ~800, two months into SHIKA's decline.
+**The creator's own words:** *"I honestly think at this point we overengineered our custom Claude setup."* — said at Session ~800, two months into v1's decline.
 
 ---
 
@@ -185,7 +188,7 @@ The context window is finite and precious. Every token wasted is a token not ava
 - After compaction: re-read memory, check for zombie background processes
 - Don't load source code at boot — load knowledge/context files; load source when building
 
-**The cost:** Session S16 of SHIKA: 67MB of context, 8 hours 37 minutes, 23 compactions. Most of the session was spent recovering from compactions, not doing actual work.
+**The cost:** Session S16 of v1: 67MB of context, 8 hours 37 minutes, 23 compactions. Most of the session was spent recovering from compactions, not doing actual work.
 
 ---
 
@@ -209,7 +212,7 @@ ssh server 'grep -c "pattern" file'
 ssh server 'grep -c "pattern" file || true' 2>/dev/null
 ```
 
-**The creator's words:** *"SHIKA HAD MILLION RED ERRORS I HATE IT"*
+**The creator's words:** *"[v1] HAD MILLION RED ERRORS I HATE IT"*
 
 ---
 
@@ -244,7 +247,7 @@ Humans are visual. Output must be scannable at a glance.
 
 Every entry cost real time, real money, or real trust. Organized chronologically across 90+ days.
 
-## Era 1: SHIKA (Dec 2025 — Feb 2026) — 968 Sessions
+## Era 1: v1 (Dec 2025 — Feb 2026) — 968 Sessions
 
 ### The Architecture That Killed Itself
 
@@ -280,7 +283,7 @@ Feb 24: Session 777 — 7 minutes, nothing executes
 
 **The pattern:** Every fix added complexity. Complexity caused new failures. New failures demanded new fixes. Repeat until system collapse. This is the **complexity death spiral** and it's the most important thing in this entire document.
 
-### What SHIKA Proved Works
+### What v1 Proved Works
 
 Despite the collapse, some patterns survived and became foundational:
 
@@ -403,7 +406,7 @@ Discord webhook URL was hardcoded as a default fallback in source code. The rule
 
 #### S30: Boot Hallucination Crisis
 
-The session that generated the most rules. Claude loaded stale documentation and presented it as current reality. Trust crisis — the user had SHIKA flashbacks.
+The session that generated the most rules. Claude loaded stale documentation and presented it as current reality. Trust crisis — the user had v1 flashbacks.
 
 **7 Meta-Patterns discovered:**
 
@@ -468,7 +471,7 @@ CLAUDE.md said "PAPER MODE ONLY" and "15 cities" when reality was LIVE mode and 
 
 #### S34: Complexity Creep Returns
 
-**What:** Forensic audit found the system had grown to 21 hooks, 14 scripts, 7 plugins. Complexity was compounding exactly like SHIKA. The "subagent inject" hook was telling agents "Paper only" when the bot had been LIVE for 5 sessions. A PowerShell profile from SHIKA had been running unnoticed for 90 days.
+**What:** Forensic audit found the system had grown to 21 hooks, 14 scripts, 7 plugins. Complexity was compounding exactly like v1. The "subagent inject" hook was telling agents "Paper only" when the bot had been LIVE for 5 sessions. A PowerShell profile from v1 had been running unnoticed for 90 days.
 
 **Fix:** Brutal simplification: 21→11 handlers, 7→4 plugins, removed 7 redundant scripts. This became the new baseline. Any new hook/script must earn its place with evidence of a prevented failure.
 
@@ -480,14 +483,14 @@ CLAUDE.md said "PAPER MODE ONLY" and "15 cities" when reality was LIVE mode and 
 
 | Session | What Went Wrong | Rule Created | Category |
 |---------|----------------|--------------|----------|
-| SHIKA | 24,800 LOC at 46% WR | Simple > clever. 636 lines beat 4,977 | Complexity |
-| SHIKA | 968 sessions, total system rot | Archive, never delete. Patch, don't rewrite | Complexity |
-| SHIKA | 36 validation gates | Rules need hooks, not volume | Enforcement |
-| SHIKA | WARN-level hooks (86% violation) | Only BLOCK-level (exit 2) works | Enforcement |
-| SHIKA | ChromaDB corruption | Simple proven storage (SQLite) | Infrastructure |
-| SHIKA | Custom MCP server | Native tools > custom frameworks | Infrastructure |
-| SHIKA | Paper labeled as live | Never lie about system state | Trust |
-| SHIKA | "Sorry won't happen again" | Structural fix or it doesn't count | Trust |
+| v1 | 4,977 lines at 46% WR | Simple > clever. 636 lines beat 4,977 | Complexity |
+| v1 | 968 sessions, total system rot | Archive, never delete. Patch, don't rewrite | Complexity |
+| v1 | 36 validation gates | Rules need hooks, not volume | Enforcement |
+| v1 | WARN-level hooks (86% violation) | Only BLOCK-level (exit 2) works | Enforcement |
+| v1 | ChromaDB corruption | Simple proven storage (SQLite) | Infrastructure |
+| v1 | Custom MCP server | Native tools > custom frameworks | Infrastructure |
+| v1 | Paper labeled as live | Never lie about system state | Trust |
+| v1 | "Sorry won't happen again" | Structural fix or it doesn't count | Trust |
 | S6 | OFI killed +16pp of edge | Disprove filters with data, not theory | Strategy |
 | S10 | 4H gate destroyed $1,838 | Backtest before deploying ANY filter | Strategy |
 | S10 | Partial TP killed returns | Understand fee structure before optimizing | Strategy |
@@ -564,7 +567,7 @@ your-project/
 └───────────────────────────────────────────────────────┘
 ```
 
-**Critical rule:** Each layer owns specific concerns. If the same information appears in two layers, pick the more specific one and delete the other. Duplication = drift = contradiction = bugs. We had 6 source-of-truth documents in SHIKA. They all said different things.
+**Critical rule:** Each layer owns specific concerns. If the same information appears in two layers, pick the more specific one and delete the other. Duplication = drift = contradiction = bugs. We had 6 source-of-truth documents in v1. They all said different things.
 
 ---
 
@@ -775,6 +778,8 @@ Lines after 200 are **silently truncated.** This is not documented well but it's
 - [Pointers to detailed memory/ files]
 ```
 
+**Note (reconciled with `memory-kit.md`):** the template above is the project-level state file from the Part 3 file structure (`<project>/memory/MEMORY.md`), and its nested headings are fine there. The auto-memory index at `~/.claude/projects/<slug>/memory/MEMORY.md` is a different file: one line per atom, no nested headings, see [memory-kit.md Part 5](memory-kit.md#part-5-the-index--memorymd). The 200-line limit applies to that index.
+
 ### What Goes in MEMORY.md vs Elsewhere
 
 | Content Type | Where It Lives | Why |
@@ -825,7 +830,7 @@ Hooks are shell commands that run automatically at specific events in Claude Cod
     "EventName": [
       {
         "matcher": "pattern",
-        "command": "bash -c '...'"
+        "hooks": [{ "type": "command", "command": "bash ~/.claude/hooks/<script>.sh" }]
       }
     ]
   }
@@ -1020,7 +1025,7 @@ Registered:
 
 ```
 ┌────────────────────────────────────────────────┐
-│  SHIKA: 36 text rules, 86% violation rate      │
+│  v1: 36 text rules, 86% violation rate         │
 │  Ezekiel: 10 rules + hooks, ~5% violation rate │
 │                                                 │
 │  Rules without enforcement = suggestions        │
@@ -1309,7 +1314,7 @@ Config change             >    Code rewrite
 3 similar lines           >    Premature abstraction
 ```
 
-Every time you're about to add complexity, ask: "Am I solving SHIKA's problem or creating it?"
+Every time you're about to add complexity, ask: "Am I solving v1's problem or creating it?"
 
 ## 6. The Stale Data Trap
 
@@ -1333,9 +1338,9 @@ Model disagreement? → Don't average it away — understand WHY they disagree
 
 # Part 13: The Anti-Complexity Bible
 
-The story of SHIKA vs Ezekiel is the story of what happens when complexity compounds unchecked.
+The story of v1 vs Ezekiel is the story of what happens when complexity compounds unchecked.
 
-## The SHIKA Collapse — A Cautionary Tale
+## The v1 Collapse — A Cautionary Tale
 
 ### What Was Built
 - ChromaDB with CUDA for RAG memory
@@ -1382,7 +1387,7 @@ Session 777. 7 minutes. Nothing executed. The system was so layered with checks,
 
 ## The Ezekiel Alternative
 
-| SHIKA | Ezekiel |
+| v1 | Ezekiel |
 |-------|---------|
 | Docker + Coolify | Native systemd |
 | Custom MCP server | Native Claude Code tools |
@@ -1514,7 +1519,7 @@ Everything above, plus:
 
 This system works because it's simple. 10 rules, a handful of hooks, clear memory structure, and a philosophy of "prove it works" instead of "it should work."
 
-SHIKA died at 968 sessions because every session added complexity.
+v1 died at 968 sessions because every session added complexity.
 Ezekiel thrives at 35+ sessions because every session enforces simplicity.
 
 The difference isn't the tools. It's the discipline.
@@ -1526,7 +1531,7 @@ The difference isn't the tools. It's the discipline.
 │                                                 │
 │  Protect progress and trust above all else.     │
 │                                                 │
-│  SHIKA had 36 validation gates, custom          │
+│  v1 had 36 validation gates, custom             │
 │  frameworks, and complex abstractions —         │
 │  and an 86% rule violation rate.                │
 │                                                 │
@@ -1540,6 +1545,6 @@ The difference isn't the tools. It's the discipline.
 
 ---
 
-*Built by SHIKA and Ezekiel. Born from the ashes of SHIKA.*
+*Built by the author and Ezekiel. Born from the ashes of v1.*
 *Every rule backed by evidence. Every pattern earned the hard way.*
 *Drop this in your Claude Code setup and skip the 968 sessions of pain.*

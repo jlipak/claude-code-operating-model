@@ -1,6 +1,6 @@
 # Attribution Notice
 
-This repository contains original documentation written by SHIKA. The code patterns and shell scripts shown within the documents are also original work, written from scratch.
+This repository contains original documentation written by Josip Lipak (GitHub `jlipak`). The code patterns and shell scripts shown within the documents are also original work, written from scratch.
 
 However, several design choices were informed by concepts from the public Claude Code ecosystem. Attribution to those concept sources:
 
@@ -53,4 +53,4 @@ If you find a pattern in this repo that resembles work from another public sourc
 
 ---
 
-*Maintained by SHIKA.*
+*Maintained by Josip Lipak.*

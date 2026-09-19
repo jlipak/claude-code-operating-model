@@ -1,133 +1,61 @@
 # Claude Code Operating Model
 
-> A complete operator stack for Claude Code, distilled from production use across multiple long-running projects.
-> Memory architecture. Operating philosophy. Full architectural blueprint.
-> Drop it in, adapt it, or just read it to skip the failures someone else already paid for.
+Three markdown documents that describe one way to run Claude Code every day, across several projects, for months. They were written in May 2026 from the author's own setup. They stay here as a reference, with a section at the end on what he would do differently now.
 
----
+## What this is
 
-## What This Is
+| File | Size | What it covers |
+|------|------|----------------|
+| `ezekiel-kit.md` | ~1,550 lines | The operating philosophy: ten rules, a failure database from about a thousand sessions, identity and CLAUDE.md templates, checklists, and the story of a first system (v1) that collapsed under its own complexity. |
+| `memory-kit.md` | ~1,600 lines | The memory system: four atom types, the MEMORY.md index and its 200-line cap, atom lifecycle, what not to save, stale protection, ten failure modes, five hooks. |
+| `blueprint.md` | ~2,400 lines | The full stack around it: three filesystem roots, three CLAUDE.md tiers, settings.json, 13 hooks, 5 skills, 3 agents, MCP servers, plugins, backup, provenance, adoption levels, anti-patterns. |
 
-Three documents that together describe how to run Claude Code as a serious daily-driver — not a toy, not a one-shot helper, but as the operating system for your engineering work.
+Everything in them is plain text and bash. No plugin, no library, no framework. Each kit opens with a two-line header that says when it was written and that it is a historical reference.
 
-The patterns here weren't designed in a vacuum. They emerged from running Claude Code across multiple long-running projects in different domains, hitting every failure mode possible, and turning each failure into a permanent rule.
+## Who it is for
 
-This isn't a framework. It's not a product. It's a set of plain markdown files that capture an operating model you can adopt whole, adapt piecewise, or use as a reference for building your own.
+Someone who runs Claude Code daily on more than one project and has met the three problems these documents answer: the session forgets everything, rules written in text get ignored, and every "one more safety check" makes the setup heavier. If you use Claude Code for one-off tasks, you do not need this.
 
-## What This Is NOT
+The documents assume you have read the official Claude Code documentation. They are not a tutorial.
 
-- **Not a quick-start tutorial** for Claude Code basics — assumes you've read the official docs
-- **Not a plugin or library** — every component is plain text + bash
-- **Not a one-size-fits-all template** — opinionated, operator-tuned, requires adaptation
-- **Not a finished product** — actively maintained, accepts iteration based on real failure modes
-- **Not a recommendation** to copy uncritically — pick what fits, leave the rest
+## How to adopt it
 
----
+Read in this order:
 
-## The Three Documents
+1. `ezekiel-kit.md`, Part 1 (the ten rules) and Part 13 (the anti-complexity chapter). This is the why.
+2. `memory-kit.md`, Parts 3 to 6 (atoms, the index, lifecycle) and Part 8 (what not to save).
+3. `blueprint.md`, Parts 1 to 3 (roots, CLAUDE.md tiers, settings.json), then Part 4 (hooks) only for the hooks you decide to copy.
 
-### `memory-kit.md` (~1500 lines)
+Copy first:
 
-> Complete memory system specification. The 4 atom types (user/feedback/project/reference), atom anatomy, the MEMORY.md 200-line index cap, lifecycle, 10 failure modes, 5 hooks for memory discipline, and a 4-level quick start.
+- A global `~/.claude/CLAUDE.md` of 30 to 60 lines with behavioral rules only (blueprint Part 2).
+- One hook, `block-git-push.sh` (blueprint Part 4, hook A1), with the one-line test from the same part.
+- A per-project `CLAUDE.md` with critical constraints and validation commands at the top (ezekiel-kit Part 11).
+- The index format and the four atom types (memory-kit Parts 3 to 5).
 
-**Read when:** You want to understand how persistent memory works in Claude Code — generic enough to adopt as a pattern, specific enough to teach the mechanics.
+Skip, or read later:
 
-**Key insight:** Memory is plain markdown files. Index (always loaded) + atoms (on-demand load). Pruned aggressively, age-stamped on read, governed by a strict lifecycle. No vector DB. No black box.
+- The backup pipeline (blueprint Part 10), until you have memory worth losing.
+- The war room pattern (memory-kit Part 10), until you run three or more projects at once.
+- The research swarm and the multi-agent audit (blueprint Part 5). See the next section.
+- Level 4 of any quick start.
 
-### `blueprint.md` (~2400 lines)
+Adapt everything. The documents describe one operator's setup, and the numbers in them (session counts, win rates, hook counts) are that operator's numbers from that time.
 
-> Full operator stack architecture. The 3-root filesystem model. 3-tier CLAUDE.md hierarchy. settings.json anatomy. 13 hooks across 4 categories. 5 user-invocable skills. 3 cost-tiered custom agents. MCP server roster. Plugin decision rationale. Memory namespaces. Off-site backup pipeline. Provenance map. Full event-by-event integration timeline. 4-tier adoption levels. 8 named anti-patterns with mitigations.
+## What I would change today
 
-**Read when:** You want to see how everything fits together — beyond memory, the complete operator setup.
+The first system described in `ezekiel-kit.md` (v1) ran 968 sessions and collapsed under its own complexity. The setup in these three documents replaced it. The kit itself records the first relapse (S34: 21 hooks, 14 scripts, 7 plugins, cut back to 11 hooks). On 2026-09-15 the author cut it down again, harder. The current setup (v3) differs from the blueprint in five ways:
 
-**Key insight:** Mature stacks are ~80% custom, ~10% borrowed, ~10% native platform features. Each hook earns its place against a real failure mode. Tests for hooks are non-negotiable. Backup pipeline matters. Quarterly platform-feature review prevents drift.
+1. **Two hooks, not thirteen.** Only the ones that block a failure that actually happened. Everything advisory went.
+2. **Four skills, not five plus swarms.** Status, wrap, research and new-project. A research question gets one agent; two or three only when comparing options. The 8-10-agent audit is gone.
+3. **One hand-off file per task.** A `TASK.md`, written by the coordinating session and deleted by the project session when the task is done, replaces the verb vocabulary and the digest-plus-plan pair.
+4. **One status file per project.** A `STATUS.md` (Updated, State, Next), rewritten at the end of each session, replaces `SESSION-DIGEST.md`, the project `MEMORY.md` and `PLAN.md`. Memory atoms remain, for corrections, decisions and surprising facts only.
+5. **A doctor script that repairs the setup.** One script runs at every session start, checks the setup and fixes what drifted. The blueprint relies on quarterly reviews; a script that runs every time does not depend on anyone remembering.
 
-### `ezekiel-kit.md` (~1450 lines)
+Three agents remain (architect, researcher, verifier), used on demand, never by default. The hub's `CLAUDE.md` carries a written complexity budget: at most 2 hooks, 4 skills and 3 agents, and anything new must name the failure it prevents. That last rule is the one sentence the author would keep if he could keep only one.
 
-> Operating philosophy. The 10 Holy Rules. The Failure Database. Anti-complexity bible. Identity templates. Behavioral law. Operational checklists. Built on the ashes of a predecessor system (SHIKA) that collapsed at 968 sessions because complexity compounded unchecked.
+## Attribution and license
 
-**Read when:** You want the *why* behind the architecture. The cautionary tale. The philosophy that informs every other choice.
+MIT, see `LICENSE`. The public repositories whose ideas shaped some design choices are credited in `NOTICE.md`; the code in the documents was written from scratch. Corrections are welcome, see `CONTRIBUTING.md`. `scripts/check_links.py` checks that the links and anchors in the four documents resolve.
 
-**Key insight:** Simplicity is the strategy. 636 lines of code at 96.4% win rate beats 4,977 lines at 46%. Rules without enforcement get violated; structural hooks that `exit 2` actually work. Every "safety check" addition added a new failure mode until the system collapsed.
-
----
-
-## Recommended Reading Order
-
-### Want depth in one sitting (~2-3 hours)
-
-```
-1. ezekiel-kit.md   →  Grounds you in the WHY. The cautionary tale.
-2. memory-kit.md    →  The memory architecture. Heart of the system.
-3. blueprint.md     →  The full operator stack. Body around the heart.
-```
-
-### Want quick orientation (~30 minutes)
-
-```
-1. This README                            5 min
-2. blueprint.md Part 1-3 (filesystem + CLAUDE.md + settings)  15 min
-3. blueprint.md Part 13-14 (adoption + anti-patterns)         10 min
-```
-
-### Want adoption template (~1 hour)
-
-```
-1. blueprint.md Part 13 — Adoption Levels (pick your level)   15 min
-2. memory-kit.md Part 14 — Quick Start (memory specifically)  10 min
-3. ezekiel-kit.md Part 1 — The 10 Holy Rules (operating principles)  15 min
-4. Skim blueprint.md Part 4 (hooks) for the discipline patterns   20 min
-```
-
-### Want to evaluate this as a hiring/governance signal
-
-```
-1. blueprint.md Part 11 — Provenance Map (custom vs borrowed vs native)
-2. blueprint.md Part 14 — Anti-Patterns and Trade-offs
-3. memory-kit.md Part 12 — Failure Modes Catalog
-4. ezekiel-kit.md Part 2 — The Failure Database
-```
-
----
-
-## Origin
-
-This is documentation of an actual operating setup that's been running daily across multiple projects. The patterns earned their keep through repeated failure and iteration.
-
-The repository is sanitized for sharing — no project-specific intel, no infrastructure identifiers, no personal data. The structure is what's valuable; the specifics are operator-tuned.
-
-If you adopt patterns from here: track what works for *your* workflow, not what worked for someone else's. The discipline is more transferable than the specifics.
-
----
-
-## License & Attribution
-
-MIT License. Use freely, attribute when reasonable.
-
-See `NOTICE.md` for attribution to concept patterns that inspired specific design choices (the operator stack draws on patterns from several public Claude Code ecosystem repos, with the code itself written from scratch).
-
----
-
-## A Final Note
-
-This is opinionated documentation. Some patterns will fit your workflow; some won't. The point isn't to convert you to one operator's choices — it's to show you that a coherent operating model is possible, and to give you concrete patterns to evaluate against your own needs.
-
-If you read all three documents and adopt nothing — you've still seen what mature Claude Code use can look like, which raises the bar for what you build yourself.
-
-If you adopt the patterns wholesale — track the trade-offs in `blueprint.md Part 14` and revisit quarterly.
-
-Either way: build deliberately.
-
-```
-┌────────────────────────────────────────────────┐
-│                                                 │
-│   The blueprint is not the building.            │
-│   But every building that lasts                 │
-│   started with one.                             │
-│                                                 │
-└────────────────────────────────────────────────┘
-```
-
----
-
-*Maintained by SHIKA. The operator's pseudonym was deliberately reclaimed from the predecessor system named in `ezekiel-kit.md` — the system died, the name kept.*
+Maintained by Josip Lipak ([jlipak](https://github.com/jlipak)).

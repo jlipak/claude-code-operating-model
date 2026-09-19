@@ -1,5 +1,8 @@
 # The Blueprint Kit — Complete Operator Architecture for Claude Code
 
+> Written: May 2026, for Claude Code 2.x of that time (hook events, settings keys and built-in names as they were then).
+> Status: historical reference; superseded in parts by the "What I would change today" section of the README.
+
 > What lives where, why it lives there, and how it all connects.
 > The complete operator stack — beyond memory atoms, beyond philosophy.
 > The skeleton of a mature Claude Code setup, sanitized so anyone can adopt or evaluate.
@@ -503,9 +506,9 @@ Common exception: LSPs (language servers) like `rust-analyzer-lsp`, `pyright-lsp
 │                                                              │
 │  Default Claude Code install:    0 hooks, 0 env vars        │
 │  Minimal setup (Level 1):        3 hooks, 1 env var          │
-│  Standard setup (Level 2):       5 hooks, 3 env vars         │
-│  Full Power setup (Level 3):     10 hooks, 6 env vars        │
-│  Godmode setup (Level 4):        13+ hooks, 6+ env vars      │
+│  Standard setup (Level 2):       8 hooks, 3 env vars         │
+│  Full Power setup (Level 3):     13 hooks, 6 env vars        │
+│  Godmode setup (Level 4):        13 hooks, 6+ env vars       │
 │                                                              │
 │  Each level adds discipline at the cost of complexity.       │
 │  Pick the level your workflow can sustain.                   │
@@ -1554,12 +1557,12 @@ When a namespace approaches the 200-line MEMORY.md index cap, you face an aggreg
 
 ```
 BEFORE aggregation:                   AFTER aggregation:
-  lex_pricing_v1.md                    lex_pricing_intel.md
-  lex_pricing_v2.md                    (consolidates all 6 prior atoms,
-  lex_pricing_competitor_a.md           historical observations as sub-sections,
-  lex_pricing_competitor_b.md           current state at top)
-  lex_pricing_personas.md
-  lex_pricing_decision_2026q1.md
+  app_pricing_v1.md                    app_pricing_intel.md
+  app_pricing_v2.md                    (consolidates all 6 prior atoms,
+  app_pricing_competitor_a.md           historical observations as sub-sections,
+  app_pricing_competitor_b.md           current state at top)
+  app_pricing_personas.md
+  app_pricing_decision_2026q1.md
 ```
 
 Aggregation reduces index entries (frees cap room) and consolidates fragmented intel. Trade-off: larger atoms are slightly less surgical to update.
@@ -2169,6 +2172,7 @@ hooks/
 ├── post-bash-failure.sh               20 min   Bash failure guidance
 ├── auto-format.sh                     30 min   Post-write formatting
 ├── task-completed-verify.sh           15 min   Completion guard
+├── block-versioned-files.sh           10 min   No-copies guard
 └── session-end-digest.sh              20 min   Auto-stub digest
 scripts/
 └── sync-memory-curated.sh             60 min   Channel B curated sync
@@ -2180,7 +2184,7 @@ First lesson_*.md atom                  When first caught failure becomes a rule
 Memory integrity check on boot         30 min   Orphan detector
 ```
 
-**Result:** ~30 atoms, 11 hooks tested, 5 skills, 3 cost-tiered agents. Production-grade setup.
+**Result:** ~30 atoms, 13 hooks tested, 5 skills, 3 cost-tiered agents. Production-grade setup.
 
 **Time investment:** Additional 10-15 hours over Month 1.
 
@@ -2365,7 +2369,7 @@ Components shown:
 - 3-root filesystem model
 - 3-tier CLAUDE.md hierarchy
 - ~30-entry settings.json
-- 13 hooks across 9 events
+- 13 hooks across 10 events
 - 5 user-invocable skills
 - 3 cost-tiered custom agents
 - 8 MCP server families
@@ -2401,3 +2405,7 @@ The patterns shown have been earned. Every hook prevents a real failure mode. Ev
 *This blueprint is a sanitized architectural reference, not an export of any specific operator's data.*
 *Adopt entire patterns or pick individual components. The structure is more valuable than the specifics.*
 *For memory system mechanics, see the companion [memory-kit]. For operating philosophy, see [ezekiel-kit].*
+
+[memory-kit]: memory-kit.md
+[ezekiel-kit]: ezekiel-kit.md
+[memory-kit Part 10]: memory-kit.md#part-10-the-war-room-pattern
